@@ -1,0 +1,7 @@
+import os
+
+USER_NAME = "my_username"
+PASSWORD = "my_password"
+JIRA_INFOTECH_SCU_EDU_AU = "my_jira_link"
+CONFLUENCE_INFOTECH_SCU_EDU_AU = "my_confluence_link"
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
