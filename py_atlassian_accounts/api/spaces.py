@@ -1,12 +1,15 @@
-from api.api_handler import ApiHandler
-from api.space_permissions import SpacePermissions
+from api.http import Http
+from api.space_permissions import ADMIN_PERMISSIONS, USER_PERMISSIONS, SpacePermissions
 
 from requests import Response
 
+http = Http.confluence()
+
 
 class Spaces:
-
-    handler = ApiHandler.confluence()
+    """
+    An object for manipulating confluence spaces
+    """
 
     def __init__(self, name: str, key: str, description: str, permissions: list = []):
         """
@@ -51,7 +54,7 @@ class Spaces:
         sp = SpacePermissions(
             subject_type, subject_id, size
         ).add_permissions(
-            SpacePermissions.user_permissions()
+            USER_PERMISSIONS
         )
         self.permissions += sp.permissions_list()
         return self
@@ -63,7 +66,7 @@ class Spaces:
         sp = SpacePermissions(
             subject_type, subject_id, size
         ).add_permissions(
-            SpacePermissions.admin_permissions()
+            ADMIN_PERMISSIONS
         )
         self.permissions += sp.permissions_list()
         return self
@@ -72,7 +75,7 @@ class Spaces:
         """
         https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-post
         https://requests.readthedocs.io/en/latest/api/
-        Creates a dictionary payload from instance variables to be passed to the api_handler's
+        Creates a dictionary payload from instance variables to be passed to the http's
         json parameter
         """
         payload = {
@@ -96,19 +99,17 @@ class Spaces:
         """
         https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-post
         """
-        response = self.handler.set_payload(self.payload).post(
+        return http.set_payload(self.payload).post(
             "/rest/api/space",
             f"Creating space {self.name} in Confluence...",
         )
-        return response
 
     @staticmethod
     def delete_space(key: str) -> Response:
         """
         https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-space/#api-wiki-rest-api-space-spacekey-delete
         """
-        response = Spaces.handler.delete(
+        return http.delete(
             "/rest/api/space/" + key,
             f"Deleting space with key {key} in Confluence...",
         )
-        return response

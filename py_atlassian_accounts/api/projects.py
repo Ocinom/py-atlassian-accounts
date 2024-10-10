@@ -1,11 +1,14 @@
-from api.api_handler import ApiHandler
+from http.http import Http
 
 from requests import Response
 
+http = Http.jira()
+
 
 class Projects:
-
-    handler = ApiHandler.jira()
+    """
+    An object for manipulating Jira projects
+    """
 
     @staticmethod
     def create_scrum_project(name: str, key: str) -> Response:
@@ -15,7 +18,7 @@ class Projects:
         Creates a blank project based on the scrum classic template
         https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-projects/#api-rest-api-3-project-post
         """
-        response = Projects.handler.set_payload({
+        return http.set_payload({
             "name": name,
             "key": key,
             "projectTemplateKey": "com.pyxis.greenhopper.jira:gh-simplified-scrum-classic",
@@ -24,18 +27,23 @@ class Projects:
             "/rest/api/3/project",
             f"Creating scrum project {name}..."
         )
-        return response
+
+    @staticmethod
+    def delete_project(project_id_or_key: str) -> Response:
+        return http.delete(
+            f"/rest/api/3/project/{project_id_or_key}",
+            f"Deleting project with key {project_id_or_key}"
+        )
 
     @staticmethod
     def assign_permission_scheme_to_project(project_key_or_id: str, scheme_id: int) -> Response:
         """
         https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-project-permission-schemes/#api-rest-api-3-project-projectkeyorid-permissionscheme-put
         """
-        response = Projects.handler.put(
+        return http.put(
             f"/rest/api/3/project/{project_key_or_id}/permissionscheme",
             f"Assigning permission scheme with ID {scheme_id} to project with key/ID {project_key_or_id}"
         )
-        return response
 
     @staticmethod
     def create_project_role(name: str, description: str) -> Response:
@@ -47,22 +55,20 @@ class Projects:
             "description": description,
         }
 
-        response = Projects.handler.set_payload(payload).post(
+        return http.set_payload(payload).post(
             "/rest/api/3/role",
             f"Creating project role {name}"
         )
-        return response
 
     @staticmethod
     def delete_project_role(role_id: str) -> Response:
         """
         https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-project-roles/#api-rest-api-3-role-id-delete
         """
-        response = Projects.handler.delete(
+        return http.delete(
             f"/rest/api/3/role/{role_id}",
             f"Deleting project role {role_id}"
         )
-        return response
 
     @staticmethod
     def add_actors_to_project_role(project_id_or_key: str, role_id: str,
@@ -76,34 +82,31 @@ class Projects:
         if user_ids:
             payload["user"] = user_ids
 
-        response = Projects.handler.set_payload(payload).post(
+        return http.set_payload(payload).post(
             f"/rest/api/3/project/{project_id_or_key}/role/{role_id}",
             f"Assigning groups and/or users to roles with ID {role_id} to project with key/ID {project_id_or_key}"
         )
-        return response
 
     @staticmethod
     def delete_user_from_project_role(project_id_or_key: str, role_id: str, user_id: str):
         """
         https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-project-role-actors/#api-rest-api-3-project-projectidorkey-role-id-delete
         """
-        response = Projects.handler.add_queries({
+        return http.add_queries({
             "user": user_id
         }).delete(
             f"/rest/api/3/project/{project_id_or_key}/role/{role_id}",
-            f"Deleting actors from roles with ID {role_id} in project with key/ID {project_id_or_key}"
+            f"Deleting user(s) from roles with ID {role_id} in project with key/ID {project_id_or_key}"
         )
-        return response
 
     @staticmethod
     def delete_group_from_project_role(project_id_or_key: str, role_id: str, group_id: str):
         """
         https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-project-role-actors/#api-rest-api-3-project-projectidorkey-role-id-delete
         """
-        response = Projects.handler.add_queries({
+        return http.add_queries({
             "groupId": group_id
         }).delete(
             f"/rest/api/3/project/{project_id_or_key}/role/{role_id}",
-            f"Deleting actors from roles with ID {role_id} in project with key/ID {project_id_or_key}"
+            f"Deleting group(s) from roles with ID {role_id} in project with key/ID {project_id_or_key}"
         )
-        return response

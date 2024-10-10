@@ -19,10 +19,20 @@ def log_api_call(func: Callable[..., Response]):
     A decorator function that wraps api call functions and performs the following logs:
     INFO: API Call execution progress
     DEBUG: Request metadata and payload and response json
+
+    Takes in a callable function that returns a http Response object to be passed into
+    the wrapper function
     """
 
     @wraps(func)
     def wrapper(self, endpoint="", desc="") -> Response:
+        url, payload_str = self.url, ""
+        if self.queries:
+            # ?q1=v1&q2=v2&...
+            url += f"?{'&'.join([f'{k}={v}' for k, v in self.queries.items()])}"
+
+        if self.payload:
+            payload_str = f"\nwith payload {pretty_json(self.payload)}\n"
 
         # Initialise/get logger
         logging.config.fileConfig('logging.conf')
@@ -30,9 +40,7 @@ def log_api_call(func: Callable[..., Response]):
 
         # Log progress to info, and JSON details to debug, where they are stored in a file
         logger.info(desc if desc else "Performing API call...")
-        logger.debug(f"Sending {func.__name__.upper()} request to {self.url}"
-                     f"\nwith queries {pretty_json(self.queries)}"
-                     f"\nand payload {pretty_json(self.payload)}\n")
+        logger.debug(f"Sending {func.__name__.upper()} request to {url + payload_str}")
 
         # Carry out the API call and get the response
         response = func(self, endpoint, desc)
@@ -40,21 +48,31 @@ def log_api_call(func: Callable[..., Response]):
                                    else {}, indent=4)
         response_status = response.status_code
 
+        log_str = f"""
+        Results for {func.__name__.upper()} request to {url} :
+        Response Status: {response.status_code}"
+        Response JSON:
+        {response_json}\n"""
+
         if response_status >= 400:
             # Log the JSON response in error if error status code is given
-            logger.error(f"Results for {func.__name__.upper()} request to {self.url} :\n"
-                         f"\nResponse Status: {response.status_code}"
-                         f"\nResponse JSON:\n{response_json}\n")
+            logger.error(log_str)
         else:
             # Log the JSON response in debug
-            logger.debug(f"Results for {func.__name__.upper()} request to {self.url} :\n"
-                         f"\nResponse Status: {response.status_code}"
-                         f"\nResponse JSON:\n{response_json}\n")
+            logger.debug(log_str)
         return response
     return wrapper
 
 
-class ApiHandler:
+class Http:
+    """
+    Simple HTTP client to handle API calls
+
+    Method calls to this client need at least two parameters:
+        endpoint - The url path appended to the base url
+        desc - The description used for logging  purposes, usually
+            for API call execution progress to be logged to INFO
+    """
 
     auth = HTTPBasicAuth(constants.USER_NAME, constants.PASSWORD)
 
@@ -69,11 +87,11 @@ class ApiHandler:
 
     @staticmethod
     def confluence():
-        return ApiHandler(f"https://{constants.CONFLUENCE_INFOTECH_SCU_EDU_AU}")
+        return Http(f"https://{constants.CONFLUENCE_INFOTECH_SCU_EDU_AU}")
 
     @staticmethod
     def jira():
-        return ApiHandler(f"https://{constants.JIRA_INFOTECH_SCU_EDU_AU}")
+        return Http(f"https://{constants.JIRA_INFOTECH_SCU_EDU_AU}")
 
     def set_payload(self, payload):
         self.payload = payload

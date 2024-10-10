@@ -41,4 +41,7 @@ if __name__ == "__main__":
     #
     # logger.info("main.py finished executing.")
     ah = api.api_handler.ApiHandler(url="http://date.jsontest.com")
+    ah.add_queries({
+        "hello": "world"
+    })
     ah.get("", "Going into JSONTest...")
