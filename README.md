@@ -7,6 +7,7 @@ A python implementation for a simple http client to send api calls and receive j
 
 ## Installation & Usage
 To run the program, simply carry out the following:
+
 Linux:
 ```bash
 git clone https://github.com/Ocinom/py-atlassian-accounts.git
