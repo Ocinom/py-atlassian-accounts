@@ -28,12 +28,12 @@ python main.py
 ## Modules
 This program consists of the following modules, each containing their own `README.md` file to detail its functionality:
 - api - Http client functionality to communicate with Atlassian servers
-- io - ==WIP==  Read and parse files into data structure implementations to be used by the http module
+- io - **__WIP__**  Read and parse files into data structure implementations to be used by the http module
 - logs - The directory to contain log files
 
 
 ## TODO:
-[] Create a simple implementation in the io module to read csv data and process it into data structures
-[] Configure logging for the io module
-[] Update main.py to read csv files to be parsed in the io module
-[] Update main.py to pass csv data to http calls in the api module
+- [ ] Create a simple implementation in the io module to read csv data and process it into data structures
+- [ ] Configure logging for the io module
+- [ ] Update main.py to read csv files to be parsed in the io module
+- [ ] Update main.py to pass csv data to http calls in the api module
