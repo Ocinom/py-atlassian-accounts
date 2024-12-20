@@ -21,7 +21,7 @@ cd py_atlassian_accounts/py_atlassian_accounts
 copy constants.py.example constants.py
 ```
 After which, edit `constants.py` using a text editor like vim or notepad++.
-After configuring `constants.py`, run stay in the directory with `main.py` and run the following:
+After configuring `constants.py`, run `main.py` from the same directory:
 ```bash
 python main.py
 ```
